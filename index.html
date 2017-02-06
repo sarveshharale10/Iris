@@ -1,0 +1,355 @@
+<html>
+<style type="text/css">
+td.header{
+	background-color:blue;
+	font-size: 16px;
+	font-weight: bold;
+	font-family: arial;
+	color: white;
+}
+tr.oddrow{
+	background-color: #E5E5FA;
+}
+.devicename{
+	font-size: 20px;
+	font-weight: bold;
+	color: blue;
+	font-family: arial;
+}
+.scheduleinfo{
+	font-size: 12px;
+	font-family: arial;	
+}
+</style>
+<script type="text/javascript">
+var piState;
+var xhttp = new XMLHttpRequest();
+/*var on = false;
+function changeImg(){
+	if(!on){
+		on = true;
+		document.getElementById("device1").src = "bulbon.png";
+	}
+	else{
+		on = false;
+		document.getElementById("device1").src = "bulboff.png";
+	}
+}*/
+function regulate(){
+	var rangeVal = parseInt(document.getElementById("dimmer").value);
+	var span = document.getElementById("dimmerLabel");
+
+	switch(rangeVal){
+		case 1:
+		command = "REGULATE 1";
+		xhttp.onreadystatechange = function(){
+		    if(this.readyState == 4 && this.status == 200){
+		    	span.innerHTML = "LOW";
+		    }
+		};
+	
+		xhttp.open("GET","Relay.jsp?command="+command,true);
+		xhttp.send();
+		break;
+
+		case 2:
+		command = "REGULATE 2";
+		xhttp.onreadystatechange = function(){
+		    if(this.readyState == 4 && this.status == 200){
+		    	span.innerHTML = "MEDIUM";
+		    }
+		};
+	
+		xhttp.open("GET","Relay.jsp?command="+command,true);
+		xhttp.send();
+		break;
+
+		case 3:
+		command = "REGULATE 3";
+		xhttp.onreadystatechange = function(){
+		    if(this.readyState == 4 && this.status == 200){
+		    	span.innerHTML = "HIGH";
+		    }
+		};
+	
+		xhttp.open("GET","Relay.jsp?command="+command,true);
+		xhttp.send();
+		break;
+
+		case 4:
+		command = "REGULATE 4";
+		xhttp.onreadystatechange = function(){
+		    if(this.readyState == 4 && this.status == 200){
+		    	span.innerHTML = "MAX";
+		    }
+		};
+	
+		xhttp.open("GET","Relay.jsp?command="+command,true);
+		xhttp.send();
+		break;
+
+	}
+}
+function deviceOnOff(deviceId,imageId){
+	if(piState.deviceOn[deviceId]){
+		command = "DEVICE_OFF "+deviceId;
+		xhttp.onreadystatechange = function(){
+	    	if (this.readyState == 4 && this.status == 200){
+	      		document.getElementById(imageId).src = "bulboff.png";
+	      		piState.deviceOn[deviceId] = false;
+	    	}
+		};
+		xhttp.open("GET", "Relay.jsp?command="+command, true);
+		xhttp.send(); 
+	}
+	else{
+		command = "DEVICE_ON "+deviceId;
+		xhttp.onreadystatechange = function(){
+	    	if(this.readyState == 4 && this.status == 200){
+	      		document.getElementById(imageId).src = "bulbon.png";
+	      		piState.deviceOn[deviceId] = true;
+	    	}
+		};
+		xhttp.open("GET", "Relay.jsp?command="+command, true);
+		xhttp.send(); 
+	}
+}
+function scheduleOn(deviceId){
+	
+}
+function scheduleOff(){
+
+}
+function securityOn(){
+	command = "SECURITY_ON";
+	xhttp.onreadystatechange = function(){
+		    if(this.readyState == 4 && this.status == 200){
+		      	document.getElementById("securityState").innerHTML = " ON";
+		      	piState.securityOn = true;
+		    }
+		};
+	
+	xhttp.open("GET","Relay.jsp?command="+command,true);
+	xhttp.send();
+
+}
+function securityOff(){
+	command = "SECURITY_OFF";
+	xhttp.onreadystatechange = function(){
+		    if(this.readyState == 4 && this.status == 200){
+		     	document.getElementById("securityState").innerHTML = " OFF";
+		      	piState.securityOn = false;
+		    }
+		};
+	
+	xhttp.open("GET","Relay.jsp?command="+command,true);
+	xhttp.send();
+}
+function buzzerOn(){
+	command = "BUZZER_ON";
+	xhttp.onreadystatechange = function(){
+		    if(this.readyState == 4 && this.status == 200){
+		      	document.getElementById("buzzerState").innerHTML = " ON";
+		      	piState.buzzerOn = true;
+		    }
+		};
+	
+	xhttp.open("GET","Relay.jsp?command="+command,true);
+	xhttp.send();
+
+}
+function buzzerOff(){
+	command = "BUZZER_OFF";
+	xhttp.onreadystatechange = function(){
+		    if(this.readyState == 4 && this.status == 200){
+		     	document.getElementById("buzzerState").innerHTML = " OFF";
+		      	piState.buzzerOn = false;
+		    }
+		};
+	
+	xhttp.open("GET","Relay.jsp?command="+command,true);
+	xhttp.send();
+}
+function scheduleOnOff(deviceId,labelId,imageId){
+	if(piState.deviceSchedule[deviceId] == -1){
+		var time = prompt("Enter the schedule time (in minutes)");
+	var newState;
+	if(time != null){
+		if(piState.deviceOn[deviceId]){
+			newState = "OFF";
+		}
+		else{
+			newState = "ON";
+		}
+		command = "SCHEDULE_ON "+deviceId+" "+time;
+		xhttp.onreadystatechange = function(){
+		    if(this.readyState == 4 && this.status == 200){
+		     	document.getElementById(labelId).innerHTML = newState+" after "+time+" minutes";
+		     	document.getElementById(imageId).src = "schedulestop.png";
+		    }
+		};
+		xhttp.open("GET","Relay.jsp?command="+command,true);
+		xhttp.send();
+		}
+	}
+	else{
+		if(confirm("Do you want to cancel the schedule?")){
+			command = "SCHEDULE_OFF "+deviceId;
+			xhttp.onreadystatechange = function(){
+		    if(this.readyState == 4 && this.status == 200){
+		     	document.getElementById(labelId).innerHTML = "No schedule";
+		     	document.getElementById(imageId).src = "schedule.png";
+		    }
+		};
+		xhttp.open("GET","Relay.jsp?command="+command,true);
+		xhttp.send();
+		}
+	}
+}
+function updateUI(){
+	//getting piState
+	xhttp.onreadystatechange = function(){
+	    	if (this.readyState == 4 && this.status == 200){
+	      		piState = JSON.parse(xhttp.responseText);
+	    	}
+		};
+		xhttp.open("GET", "Relay.jsp?command=GET_PISTATE", true);
+		xhttp.send(); 
+
+	//updating deviceImages
+	if(piState.deviceOn[0]){
+		document.getElementById("device1").src = "bulbon.png";
+	}
+	else{
+		document.getElementById("device1").src = "bulboff.png";
+	}
+	if(piState.deviceOn[1]){
+		document.getElementById("device2").src = "bulbon.png";
+	}
+	else{
+		document.getElementById("device2").src = "bulboff.png";
+	}
+	if(piState.deviceOn[2]){
+		document.getElementById("device3").src = "bulbon.png";
+	}
+	else{
+		document.getElementById("device3").src = "bulboff.png";
+	}
+	if(piState.deviceOn[3]){
+		document.getElementById("device4").src = "bulbon.png";
+	}
+	else{
+		document.getElementById("device4").src = "bulboff.png";
+	}
+	if(piState.deviceOn[4]){
+		document.getElementById("device5").src = "bulbon.png";
+	}
+	else{
+		document.getElementById("device5").src = "bulboff.png";
+	}
+	if(piState.securityOn){
+		document.getElementById("securityState").innerHTML = " ON";
+	}
+	else{
+		document.getElementById("securityState").innerHTML = " OFF";
+	}
+	if(piState.buzzerOn){
+		document.getElementById("buzzerState").innerHTML = " ON";
+	}
+	else{
+		document.getElementById("buzzerState").innerHTML = " OFF";
+	}
+	document.getElementById("dimmer").value = piState.dimmerState;
+	switch(piState.dimmerState){
+		case 1:
+		document.getElementById("dimmerLabel").innerHTML = "LOW";
+		break;
+
+		case 2:
+		document.getElementById("dimmerLabel").innerHTML = "MEDIUM";
+		break;
+
+		case 3:
+		document.getElementById("dimmerLabel").innerHTML = "HIGH";
+		break;
+
+		case 4:
+		document.getElementById("dimmerLabel").innerHTML = "MAX";
+		break;
+	}
+
+}
+function init(){
+	xhttp.onreadystatechange = function(){
+	    	if (this.readyState == 4 && this.status == 200){
+	      		piState = JSON.parse(xhttp.responseText);
+	    	}
+		};
+		xhttp.open("GET", "Relay.jsp?command=GET_PISTATE", true);
+		xhttp.send(); 
+	setInterval(updateUI,5000);
+}
+</script>
+<body onload="init()">
+	
+	<form>
+		<table border="0" width="100%" cellpadding="2" cellspacing="0">
+			<tr>
+				<td colspan="4" class="header">Appliances</td>
+			</tr>
+			<tr>
+				<td><img src="bulboff.png" onclick="deviceOnOff(0,'device1')" id="device1"></img></td>
+				<td><span class="devicename">DeviceName</span><br><span class="scheduleinfo" id="device1ScheduleLabel">No schedule</span></td>
+				<td align="center"><img src="schedule.png" width="48" height="48" id="device1ScheduleImg" onclick="scheduleOnOff(0,'device1ScheduleLabel','device1ScheduleImg')"></td>
+			</tr>
+			<tr class="oddrow">
+				<td><img src="bulboff.png" onclick="deviceOnOff(1,'device2')" id="device2"></img></td>
+				<td><span class="devicename">DeviceName</span><br><span class="scheduleinfo" id="device2ScheduleLabel">No schedule</span></td>
+				<td align="center"><img src="schedule.png" width="48" height="48" id="device2ScheduleImg" onclick="scheduleOnOff(1,'device2ScheduleLabel','device2ScheduleImg')"></td>
+			</tr>
+			<tr >
+				<td ><img src="bulboff.png" onclick="deviceOnOff(2,'device3')" id="device3"></img></td>
+				<td><span class="devicename">DeviceName</span><br><span class="scheduleinfo" id="device3ScheduleLabel">No schedule</span></td>
+				<td align="center"><img src="schedule.png" width="48" height="48" id="device3ScheduleImg" onclick="scheduleOnOff(2,'device3ScheduleLabel','device3ScheduleImg')"></td>
+			</tr>
+			<tr class="oddrow">
+				<td ><img src="bulboff.png" onclick="deviceOnOff(3,'device4')" id="device4"></img></td>
+				<td><span class="devicename">DeviceName</span><br><span class="scheduleinfo" id="device4ScheduleLabel">No schedule</span></td>
+				<td align="center"><img src="schedule.png" width="48" height="48" id="device4ScheduleImg" onclick="scheduleOnOff(3,'device4ScheduleLabel','device4ScheduleImg')"></td>
+			</tr>
+			<tr>
+				<td colspan="4" class="header">Dimmer</td>
+			</tr>
+			<tr>
+				<td ><img src="bulboff.png" onclick="deviceOnOff(4,'device5')" id="device5" /></td>
+				<td><span class="devicename">DeviceName</span><br><span class="scheduleinfo" id="device5ScheduleLabel">No schedule</span></td>
+				<td align="center"><img src="schedule.png" width="48" height="48" id="device5ScheduleImg" onclick="scheduleOnOff(4,'device5ScheduleLabel','device5ScheduleImg')"></td>
+			</tr>
+			<tr>
+				<td colspan="4" style="font-family:arial;font-size:14px;">Regulator<input type="range" id="dimmer" min="1" max="4" step="1" value="1" onchange="regulate()">&nbsp;
+					<span id="dimmerLabel">LOW</span></td>
+			</tr>
+			<tr bgcolor="#CCCCF5">
+
+				<td colspan="2"><span style="font-size:24px;font-weight:bold;color:blue;font-family:arial;">Security</span><br><span class="scheduleinfo" id="securityState">&nbsp;OFF</span></td>
+				<td align="center">
+					<img src="arm.png" onclick="securityOn()"></img><br><span class="scheduleinfo">ON</span>
+				</td>
+				<td align="center">
+					<img src="disarm.png" onclick="securityOff()"></img><br><span class="scheduleinfo">OFF</span></td>
+				</td>
+			</tr>
+			<tr bgcolor="#E5E5FA"> 
+
+				<td colspan="2"><span style="font-size:24px;font-weight:bold;color:blue;font-family:arial;">Alarm</span><br><span class="scheduleinfo" id="buzzerState">&nbsp;OFF</span></td>
+				<td align="center">
+					<img src="alarmon.png" height="60" width="60" onclick="buzzerOn()"><br><span class="scheduleinfo">PANIC</span>
+				</td>
+				<td align="center">
+					<img src="alarmoff.png" height="60" width="60" onclick="buzzerOff()"><br><span class="scheduleinfo">ALARM OFF</span>
+				</td>
+			</tr>
+		</table>
+	</form>
+</body>
+</html>

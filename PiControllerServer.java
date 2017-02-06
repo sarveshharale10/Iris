@@ -54,8 +54,12 @@ class Schedule extends Thread{
              	Thread.sleep(1000*60);
 
             }catch(InterruptedException e){}
-        
+        	PiController.piState.deviceSchedule[deviceId]--;
+
         }
+
+        PiController.piState.deviceSchedule[deviceId] = -1;
+
         if(deviceState){
 
         	if(deviceId != 4){
@@ -104,7 +108,6 @@ class Schedule extends Thread{
 			PiController.piState.deviceOn[deviceId] = true;
 
         }
-        PiController.piState.deviceSchedule[deviceId] = -1;
 
     }
 
@@ -290,11 +293,13 @@ class PiController{
 			return "Regulator value changed to "+tokens[1];
 
 			case "SECURITY_ON":
-			PiController.securityOn = true;
+			securityOn = true;
+			piState.securityOn = true;
 			return "Security turned on";
 
 			case "SECURITY_OFF":
-			PiController.securityOn = false;
+			securityOn = false;
+			piState.securityOn = false;
 			return "Security turned off";
 
 			case "BUZZER_ON":
